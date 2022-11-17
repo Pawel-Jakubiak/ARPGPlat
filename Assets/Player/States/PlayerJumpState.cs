@@ -14,6 +14,8 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void CheckSwitchStates()
     {
+        CheckForCeiling();
+
         if (_player.IsAttackPressed)
         {
             SwitchState(_player.GetState("AirAttack"));
@@ -46,20 +48,23 @@ public class PlayerJumpState : PlayerBaseState
     {
         HandleGravity();
         HandleMovement();
-        CheckForCeiling();
         CheckSwitchStates();
     }
 
     private void CheckForCeiling()
     {
-        bool ceilingHit = Physics.CheckSphere(_player.transform.position + (_player.transform.up * _player.Controller.height * .8f), _player.Controller.radius, ceilingMasks);
-        Collider[] test = Physics.OverlapSphere(_player.transform.position + (_player.transform.up * _player.Controller.height * .8f), _player.Controller.radius, ceilingMasks);
+        RaycastHit hit;
 
-        foreach (Collider col in test)
-            Debug.Log($"{col.name}");
+        Vector3 castPosition = _player.transform.position + Vector3.up * (_player.Controller.height + _player.Controller.skinWidth);
+        castPosition += Vector3.down * (_player.Controller.radius + Physics.defaultContactOffset);
 
-        if (ceilingHit)
-            _player._appliedVelocity.y = _player._currentVelocity.y = 0;
+        Physics.SphereCast(castPosition, _player.Controller.radius, Vector3.up, out hit, 1f);
+
+        if (hit.collider && hit.distance <= 0.1f)
+        {
+            SwitchState(_player.GetState("Fall"));
+            return;
+        }
     }
 
     private void HandleJump()

@@ -1,13 +1,15 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 public class AISensor : MonoBehaviour
 {
-    public event Action OnTargetFound;
-    public event Action OnTargetLost;
+    public enum SensorType
+    {
+        NONE = 0,
+        SPHERE = 1,
+        BOX = 2,
+        CONE = 3
+    }
 
     private Transform _target;
     [SerializeField] private SensorType _sensorType = SensorType.NONE;
@@ -18,16 +20,12 @@ public class AISensor : MonoBehaviour
     [SerializeField] private int _angle;
     [SerializeField] private LayerMask _layer;
 
-    private bool _targetFound = false;
     private float _currentRadius;
     private float _currentSearchRate;
     private float _lastDetectionTime;
 
-    [SerializeField] private bool _showGizmos = false;
-    [SerializeField] private Color _notFoundColor = Color.green;
-    [SerializeField] private Color _detectedColor = Color.red;
-
     public Transform GetTarget { get { return _target; } }
+    public Transform SetTarget(Transform target) => _target = target;
 
     private void OnEnable()
     {
@@ -54,7 +52,7 @@ public class AISensor : MonoBehaviour
         {
             colliders = Physics.OverlapBox(transform.position, Vector3.one * _currentRadius, Quaternion.identity, _layer);
         }
-        else if (_sensorType == SensorType.SPHERE || _sensorType == SensorType.CONE && _targetFound)
+        else if (_sensorType == SensorType.SPHERE || _sensorType == SensorType.CONE && _target)
         {
             colliders = Physics.OverlapSphere(transform.position, _currentRadius, _layer);
         }
@@ -72,30 +70,23 @@ public class AISensor : MonoBehaviour
             }
         }
 
-        if (colliders.Length == 0)
-        {
-            _targetFound = false;
-            _currentRadius = _searchRadius;
-            _currentSearchRate = _searchRate;
+        bool targetFound = colliders.Length > 0 ? true : false;
 
-            OnTargetLost.Invoke();
-
-            return;
-        }
-
-        _targetFound = true;
-        _currentRadius = _followRadius;
-        _currentSearchRate = _followRate;
-
-        OnTargetFound.Invoke();
+        _target = targetFound ? colliders[0].transform : null;
+        _currentRadius = targetFound ? _followRadius : _searchRadius;
+        _currentSearchRate = targetFound ? _followRate : _searchRate;
     }
+
+    [SerializeField] private bool _showGizmos = false;
+    [SerializeField] private Color _notFoundColor = Color.green;
+    [SerializeField] private Color _detectedColor = Color.red;
 
     private void OnDrawGizmosSelected()
     {
         if (!_showGizmos)
             return;
 
-        Handles.color = Gizmos.color = _targetFound ? _detectedColor : _notFoundColor;
+        Handles.color = Gizmos.color = _target ? _detectedColor : _notFoundColor;
 
         if (_sensorType == SensorType.BOX)
         {
@@ -103,7 +94,7 @@ public class AISensor : MonoBehaviour
             return;
         }
 
-        if (_sensorType == SensorType.SPHERE || _targetFound)
+        if (_sensorType == SensorType.SPHERE || _target)
         {
             Gizmos.DrawWireSphere(transform.position, _currentRadius);
             return;
@@ -119,13 +110,5 @@ public class AISensor : MonoBehaviour
 
             Handles.DrawWireArc(transform.position, Vector3.up, leftAngle, _angle, _searchRadius);
         }
-    }
-
-    public enum SensorType
-    {
-        NONE = 0,
-        SPHERE = 1,
-        BOX = 2,
-        CONE = 3
     }
 }

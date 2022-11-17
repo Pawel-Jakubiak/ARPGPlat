@@ -2,11 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyIdleState : EnemyBaseState
+public class EnemyAttackState : EnemyBaseState
 {
-    private float lastPatrol;
-
-    public EnemyIdleState(EnemyController controller) : base (controller) { }
+    public EnemyAttackState(EnemyController controller) : base (controller) { }
 
     public override void CheckSwitchStates()
     {
@@ -15,17 +13,11 @@ public class EnemyIdleState : EnemyBaseState
             SwitchState(_controller.GetState("Follow"));
             return;
         }
-
-        if (Time.time > lastPatrol + _controller.PatrolRate)
-        {
-            SwitchState(_controller.GetState("Patrol"));
-        }
     }
 
     public override void OnEnter()
     {
-        _controller.Animator.Play("Idle");
-        lastPatrol = Time.time;
+        _controller.Animator.Play("Attack");
     }
 
     public override void OnExit()
@@ -35,6 +27,9 @@ public class EnemyIdleState : EnemyBaseState
 
     public override void OnUpdate()
     {
+        if (_controller.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            return;
+
         CheckSwitchStates();
     }
 }

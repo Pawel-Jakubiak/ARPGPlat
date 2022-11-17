@@ -6,7 +6,7 @@ using Pathfinding;
 public class EnemyController : BaseController, IDamageSource, IDamageable
 {
     protected EnemyBaseState _currentState;
-    [SerializeField] protected bool _isStationary = true;
+    [SerializeField] protected bool _isStationary = false;
 
     protected Seeker _seeker;
     protected Path _path;
@@ -25,6 +25,7 @@ public class EnemyController : BaseController, IDamageSource, IDamageable
     public float RepathRate { get { return _repathRate; } }
     public float PatrolRate { get { return _patrolRate; } }
     public float PatrolRadius { get { return _patrolRadius; } }
+    public bool IsStationary { get { return _isStationary; } }
     public Vector3 SpawnPosition { get { return _spawnPosition; } }
 
     protected override void Awake()
@@ -46,13 +47,15 @@ public class EnemyController : BaseController, IDamageSource, IDamageable
     protected override void FixedUpdate()
     {
         _currentState?.OnUpdate();
+
+        //_controller.Move(_appliedVelocity * Time.fixedDeltaTime);
     }
 
-    public void ApplyDamage(DamageInfo damageInfo)
+    public void OnHit(DamageInfo damageInfo)
     {
-        _healthPoints = (int) Mathf.Clamp(_healthPoints - damageInfo.damage, 0f, _maxHealthPoints);
+        _currentState?.OnHit(damageInfo);
 
-        Debug.Log($"{damageInfo.source} hit {transform.name} for {damageInfo.damage}, current health is {_healthPoints}.");
+        //Debug.Log($"{damageInfo.source} hit {transform.name} for {damageInfo.damage}, current health is {_healthPoints}.");
     }
 
     public int CalculateDamage()
@@ -71,6 +74,9 @@ public class EnemyController : BaseController, IDamageSource, IDamageable
 
         _states.Add("Idle", new EnemyIdleState(this));
         _states.Add("Patrol", new EnemyPatrolState(this));
+        _states.Add("Follow", new EnemyFollowState(this));
+        _states.Add("Hit", new EnemyHitState(this));
+        _states.Add("Attack", new EnemyAttackState(this));
 
         _currentState = GetState("Idle");
         _currentState.OnEnter();

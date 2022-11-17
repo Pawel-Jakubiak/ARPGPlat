@@ -28,6 +28,15 @@ public class PlayerController : BaseController, IDamageSource, IDamageable
     public bool IsMoving { get { return _movementInput != Vector2.zero ? true : false; } }
     public Vector2 CurrentMovementInput { get { return _movementInput; } }
 
+    public new int CurrentHealth { 
+        get { return _healthPoints; }
+        set
+        {
+            _healthPoints = value;
+            HealthbarController.Instance.SetHealthbar(value, _maxHealthPoints);
+        }
+    }
+
     protected override void Awake()
     {
         base.Awake();
@@ -51,6 +60,7 @@ public class PlayerController : BaseController, IDamageSource, IDamageable
         _input.Player.Attack.started += ProcessAttack;
         _input.Player.Attack.canceled += ProcessAttack;
 
+        HealthbarController.Instance.SetHealthbar(CurrentHealth, MaxHealth);
     }
 
     protected override void FixedUpdate()
@@ -67,7 +77,6 @@ public class PlayerController : BaseController, IDamageSource, IDamageable
         //if (_input.Player.Attack.triggered) _isAttackPressed = true;
 
         if (_input.Player.TestAction.triggered) testAction.Invoke();
-
     }
 
     private void ProcessJump(InputAction.CallbackContext context)
@@ -85,9 +94,9 @@ public class PlayerController : BaseController, IDamageSource, IDamageable
         _isAttackPressed = context.ReadValueAsButton();
     }
 
-    public void ApplyDamage(DamageInfo damageObject)
+    public void OnHit(DamageInfo damageObject)
     {
-        throw new NotImplementedException();
+        CurrentHealth -= 2;
     }
 
     public int CalculateDamage()

@@ -10,6 +10,12 @@ public class EnemyPatrolState : EnemyBaseState
 
     public override void CheckSwitchStates()
     {
+        if (_target)
+        {
+            SwitchState(_controller.GetState("Follow"));
+            return;
+        }
+
         if (reachedEndOfPath)
         {
             SwitchState(_controller.GetState("Idle"));
@@ -25,6 +31,8 @@ public class EnemyPatrolState : EnemyBaseState
         targetPosition.z += randomPosition.y;
 
         _controller.GetSeeker.StartPath(_controller.transform.position, targetPosition, OnPathComplete);
+
+        _controller.Animator.Play("RunForward");
     }
 
     public override void OnUpdate()

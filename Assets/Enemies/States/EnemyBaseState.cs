@@ -7,19 +7,15 @@ public abstract class EnemyBaseState : BasicState
 {
     protected EnemyController _controller;
     protected EnemyBaseState _currentState;
-    protected Transform _target;
+    protected Transform _target { get { return _controller.GetAISensor.GetTarget; } }
 
     protected float nextWaypointDistance = 1;
     protected int currentWaypoint = 0;
-    protected float lastRepath = 0f;
     protected bool reachedEndOfPath;
 
     public EnemyBaseState(EnemyController controller)
     {
         _controller = controller;
-
-        _controller.GetAISensor.OnTargetFound += SetTarget;
-        _controller.GetAISensor.OnTargetLost += RemoveTarget;
     }
 
     protected void SwitchState(EnemyBaseState newState)
@@ -29,16 +25,6 @@ public abstract class EnemyBaseState : BasicState
         newState.OnEnter();
 
         _controller.CurrentState = newState;
-    }
-
-    protected void SetTarget()
-    {
-        _target = _controller.GetAISensor.GetTarget;
-    }
-
-    protected void RemoveTarget()
-    {
-        _target = null;
     }
 
     protected void OnPathComplete(Path p)
@@ -58,8 +44,12 @@ public abstract class EnemyBaseState : BasicState
             p.Release(_controller);
         }
     }
+
     protected virtual void HandleMovement()
     {
+        if (_controller.IsStationary)
+            return;
+
         if (_controller.Path == null)
             return;
 
@@ -89,10 +79,23 @@ public abstract class EnemyBaseState : BasicState
             }
         }
 
-        Vector3 direction = (_controller.Path.vectorPath[currentWaypoint] - _controller.transform.position).normalized;
+        Vector3 direction = _controller.Path.vectorPath[currentWaypoint] - _controller.transform.position;
+        Vector3 facingDirection = new Vector3(direction.x, 0f, direction.z).normalized;
+        direction = direction.normalized;
+
         Vector3 velocity = direction * _controller.MovementSpeed;
 
-        _controller.transform.forward = direction;
+        _controller.transform.forward = facingDirection;
         _controller.Controller.Move(velocity * Time.fixedDeltaTime);
+    }
+
+    public virtual void OnHit(DamageInfo damageInfo)
+    {
+        if (!_target)
+            _controller.GetAISensor.SetTarget(damageInfo.source.transform);
+
+        _controller.CurrentHealth = (int)Mathf.Clamp(_controller.CurrentHealth - damageInfo.damage, 0f, _controller.MaxHealth);
+
+        SwitchState(_controller.GetState("Hit"));
     }
 }

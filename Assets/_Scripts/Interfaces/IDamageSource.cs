@@ -4,6 +4,9 @@ using UnityEngine;
 
 public interface IDamageSource
 {
+    public GameObject gameObject { get; }
+    public Transform transform { get; }
+
     int CalculateDamage();
 }
 

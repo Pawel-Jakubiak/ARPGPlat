@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class InventorySystem : MonoBehaviour
 {
-    /*[SerializeField] private InventoryData _inventoryData;
+    [SerializeField] private List<InventorySlot> _inventoryData;
 
     public static InventorySystem Instance;
 
-    public InventoryData GetInventoryData { get { return _inventoryData; } }
+    public List<InventorySlot> GetInventoryData { get { return _inventoryData; } }
 
     private void Awake()
     {
@@ -27,7 +27,7 @@ public class InventorySystem : MonoBehaviour
         if (slot == null)
         {
             slot = new InventorySlot(item, amount);
-            _inventoryData.items.Add(slot);
+            _inventoryData.Add(slot);
 
             return;
         }
@@ -37,27 +37,10 @@ public class InventorySystem : MonoBehaviour
 
     public InventorySlot GetInventoryItem(ItemObject item)
     {
-        foreach (InventorySlot invItem in _inventoryData.items)
+        foreach (InventorySlot invItem in _inventoryData)
             if (invItem.item == item)
                 return invItem;
 
         return null;
-    }*/
-}
-
-[System.Serializable]
-public class InventorySlot
-{
-    public ItemObject item;
-    public int quantity;
-
-    public InventorySlot(ItemObject item, int amount)
-    {
-        this.item = item;
-        quantity = amount;
     }
-
-    public void Add(int amount) => this.quantity += amount;
-
-    public void Remove(int amount) => this.quantity -= amount;
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class BaseController : MonoBehaviour
 {
     [SerializeField] protected int _maxHealthPoints;
-    protected int _healthPoints;
+    [SerializeField] protected int _healthPoints;
 
     [SerializeField] protected float _movementSpeed;
     protected CharacterController _controller;
@@ -26,6 +26,7 @@ public abstract class BaseController : MonoBehaviour
     public Animator Animator { get { return _animator; } }
     public bool IsGrounded { get { return _isGrounded; } }
     public int CurrentHealth { get { return _healthPoints; } set { _healthPoints = value; } }
+    public int MaxHealth { get { return _maxHealthPoints; } }
     public float MovementSpeed { get { return _movementSpeed; } set { _movementSpeed = value; } }
     public float JumpTime { get { return _jumpTime; } set { _jumpTime = value; } }
     public float JumpHeight { get { return _jumpHeight; } set { _jumpHeight = value; } }
@@ -35,6 +36,8 @@ public abstract class BaseController : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
+
+        CurrentHealth = MaxHealth;
     }
 
     protected virtual void FixedUpdate()
@@ -45,11 +48,12 @@ public abstract class BaseController : MonoBehaviour
     private void IsControllerGrounded()
     {
         RaycastHit hit;
-        Physics.SphereCast(transform.position + Vector3.up * (Physics.defaultContactOffset + _controller.radius), _controller.radius, Vector3.down, out hit);
+        Vector3 castPosition = transform.position + Vector3.up * (Physics.defaultContactOffset + _controller.radius);
+
+        Physics.SphereCast(castPosition, _controller.radius, Vector3.down, out hit);
 
         if (hit.collider)
         {
-            Debug.Log($"{hit.distance} {transform.position}");
             _isGrounded = hit.distance <= .1f ? true : false;
         }
     }

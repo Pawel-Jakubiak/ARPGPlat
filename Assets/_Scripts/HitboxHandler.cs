@@ -34,6 +34,6 @@ public class HitboxHandler : MonoBehaviour
 
         DamageInfo damageInfo = new DamageInfo(_source, _source.CalculateDamage());
 
-        damageable.ApplyDamage(damageInfo);
+        damageable.OnHit(damageInfo);
     }
 }
