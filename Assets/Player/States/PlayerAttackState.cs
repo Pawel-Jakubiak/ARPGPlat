@@ -4,63 +4,98 @@ using UnityEngine;
 
 public class PlayerAttackState : PlayerBaseState
 {
-    public PlayerAttackState(PlayerController player) : base(player) 
-    {
-        //redSpeed = .5f;
-    }
+    private const int MAX_COMBO = 3;
 
-    private bool animationEnded = false;
-    private bool inAttackAnimation = false;
-    private int comboPhase = 0;
+    private int _currentAttack;
+    private int _attackPresses;
+    private float _attackLockTimer;
+    private bool _isInAir;
 
-    public override void CheckSwitchStates()
+    private LayerMask hitMasks;
+
+    public PlayerAttackState(PlayerController player) : base(player)
     {
-        if (animationEnded && (comboPhase == 3 || !_player.IsAttackPressed))
-            SwitchState(_player.GetState("Grounded"));
+        hitMasks = LayerMask.GetMask("Enemy");
     }
 
     public override void OnEnter()
     {
-        _player._currentVelocity.x = _player._appliedVelocity.x = 0f;
-        _player._currentVelocity.z = _player._appliedVelocity.z = 0f;
-        CommenceAttack();
+        _player._currentVelocity = _player._appliedVelocity = Vector3.zero;
+
+        _attackPresses = 1;
+        _player.IsAttackPressed = false;
+
+        _currentAttack = 0;
+
+        DoAttack();
     }
 
     public override void OnExit()
     {
-        comboPhase = 0;
         _player.IsAttackPressed = false;
     }
 
     public override void OnUpdate()
     {
-        float animationTimer = _player.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-
-        animationEnded = animationTimer >= 1 ? true : false;
-        inAttackAnimation = animationTimer <= _player.comboDelay ? true : false;
-
-        if (!inAttackAnimation)
+        if (_player.IsAttackPressed)
         {
-            HandleMovement();
-        }
-        else
-        {
-            Vector3 playerForward = _player.transform.forward;
-
-            _player._currentVelocity.x = _player._appliedVelocity.x = playerForward.x * 2;
-            _player._currentVelocity.z = _player._appliedVelocity.z = playerForward.z * 2;
+            _attackPresses = Mathf.Clamp(_attackPresses + 1, 0, MAX_COMBO);
+            _player.IsAttackPressed = false;
         }
 
-        if (!inAttackAnimation && _player.IsAttackPressed && comboPhase < 3)
-            CommenceAttack();
+        if (Time.time >= _attackLockTimer && _currentAttack < _attackPresses)
+        {
+            DoAttack();
+        }
 
         CheckSwitchStates();
     }
 
-    private void CommenceAttack()
+    public override void CheckSwitchStates()
     {
-        comboPhase += 1;
-        _player.IsAttackPressed = animationEnded = false;
-        _player.Animator.Play("Attack" + comboPhase);
+        if (Time.time >= _attackLockTimer + 0.3f)
+        {
+            SwitchState(_player.GetState("Grounded"));
+        }
+    }
+
+    private void DoAttack()
+    {
+        _currentAttack = Mathf.Clamp(_currentAttack + 1, 0, MAX_COMBO);
+
+        int attackAnimationHash = Animator.StringToHash("Attack" + _currentAttack);
+
+        _player.Animator.CrossFade(attackAnimationHash, .1f);
+
+        AttackLogic();
+
+        _attackLockTimer = Time.time + .2f;
+    }
+
+    private void AttackLogic()
+    {
+        Collider[] hitColliders = new Collider[20];
+        BoxCollider hitboxCollider = _player.GetAttackColliders[_currentAttack - 1];
+
+        Vector3 hitboxPosition = _player.transform.position + hitboxCollider.center;
+
+        int foundColliders = Physics.OverlapBoxNonAlloc(hitboxPosition, hitboxCollider.size / 2, hitColliders, Quaternion.identity, hitMasks);
+
+        Debug.Log(foundColliders);
+
+        if (foundColliders == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < foundColliders; i++)
+        {
+            Debug.Log(hitColliders[i].gameObject.name);
+
+            if (hitColliders[i].TryGetComponent(out IDamageable damageable))
+            {
+                damageable.OnHit(new DamageInfo(_player.GetComponent<IDamageSource>(), 5));
+            }
+        }
     }
 }

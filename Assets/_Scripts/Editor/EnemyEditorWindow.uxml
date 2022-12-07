@@ -1,0 +1,40 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/_Scripts/Editor/EnemyEditorWindow.uss?fileID=7433441132597879392&amp;guid=6fd55d12888ecd243bb047e67613ee65&amp;type=3#EnemyEditorWindow" />
+    <ui:ScrollView scroll-deceleration-rate="0,135" elasticity="0,1" name="container" style="min-height: 100%;">
+        <ui:VisualElement name="settingsContainer" style="flex-direction: column;">
+            <ui:Label text="Basic Settings" display-tooltip-when-elided="true" name="groupLabel" />
+            <ui:TextField picking-mode="Ignore" label="Display Name" value="filler text" binding-path="displayName" />
+            <uie:ObjectField label="Mesh" allow-scene-objects="false" type="UnityEngine.Mesh, UnityEngine.CoreModule" binding-path="mesh" />
+        </ui:VisualElement>
+        <ui:VisualElement name="statisticsContainer">
+            <ui:Label text="Statistics" display-tooltip-when-elided="true" name="groupLabel" />
+            <uie:IntegerField label="Health" value="0" binding-path="maxHealth" />
+            <ui:VisualElement name="moveGroup" style="flex-direction: row;">
+                <uie:FloatField label="Movement Speed" value="42,2" binding-path="movementSpeed" name="movementSpeed" readonly="false" focusable="false" />
+                <ui:Toggle label="Is Stationary" binding-path="isStationary" name="stationary" style="flex-wrap: nowrap; justify-content: flex-start; align-items: auto;" />
+            </ui:VisualElement>
+            <uie:IntegerField label="Damage" value="0" binding-path="damage" />
+        </ui:VisualElement>
+        <ui:VisualElement name="aiContainer">
+            <ui:Label text="AI Settings" display-tooltip-when-elided="true" name="groupLabel" />
+            <ui:VisualElement name="groupContainer">
+                <ui:Label text="Patrolling, Pathfinding" display-tooltip-when-elided="true" name="smallLabel" />
+                <uie:FloatField label="Repath Rate" value="42,2" binding-path="repathRate" />
+                <uie:FloatField label="Patrol Rate" value="42,2" binding-path="patrolRate" />
+                <uie:FloatField label="Patrol Radius" value="42,2" binding-path="patrolRadius" />
+            </ui:VisualElement>
+            <ui:VisualElement name="groupContainer">
+                <ui:Label text="AI Sensor" display-tooltip-when-elided="true" name="smallLabel" />
+                <uie:EnumField label="Sensor Type" include-obsolete-values="false" value="SensorType" binding-path="sensorType" name="sensorType" />
+                <ui:Slider picking-mode="Ignore" label="Update Rate" value="0" high-value="2" low-value="0.1" binding-path="updateRate" page-size="0" name="updateRate">
+                    <ui:Label text="0" display-tooltip-when-elided="true" name="sliderValue" binding-path="updateRate" />
+                </ui:Slider>
+                <uie:FloatField label="Search Radius" value="42,2" binding-path="searchRadius" />
+                <uie:FloatField label="Target Radius" value="42,2" binding-path="targetRadius" />
+                <ui:SliderInt picking-mode="Ignore" label="Angle" value="0" high-value="360" name="angle" binding-path="angle">
+                    <ui:Label text="0" display-tooltip-when-elided="true" name="sliderValue" binding-path="angle" />
+                </ui:SliderInt>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

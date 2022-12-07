@@ -8,6 +8,12 @@ public class EnemyHitState : EnemyBaseState
 
     public override void CheckSwitchStates()
     {
+        if (_controller.CurrentHealth <= 0)
+        {
+            SwitchState(_controller.GetState("Death"));
+            return;
+        }
+
         if (_target)
         {
             SwitchState(_controller.GetState("Follow"));
@@ -35,6 +41,8 @@ public class EnemyHitState : EnemyBaseState
 
     public override void OnHit(DamageInfo damageInfo)
     {
+        _controller.CurrentHealth = (int)Mathf.Clamp(_controller.CurrentHealth - damageInfo.damage, 0f, _controller.MaxHealth);
+
         _controller.Animator.Play("Hit", -1, 0);
     }
 }

@@ -36,7 +36,7 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void OnEnter()
     {
-        _player.Animator.Play("JumpWhileRunning");
+        _player.Animator.CrossFade("JumpWhileRunning", .1f);
         HandleJump();
     }
 

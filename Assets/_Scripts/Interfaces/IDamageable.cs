@@ -4,5 +4,7 @@ using UnityEngine;
 
 public interface IDamageable
 {
-    void OnHit(DamageInfo damageInfo);
+    public void OnHit(DamageInfo damageInfo);
+
+    public GameObject gameObject { get; }
 }

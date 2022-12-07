@@ -19,7 +19,10 @@ public class HealthbarController : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
 
+    private void OnEnable()
+    {
         _maxSliderWidth = _slider.sizeDelta.x;
     }
 

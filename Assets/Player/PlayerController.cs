@@ -7,21 +7,19 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : BaseController, IDamageSource, IDamageable
 {
-    public ItemObject item;
-
     private PlayerInputActions _input;
+
+    [SerializeField] private BoxCollider[] _attacksHitColliders;
 
     private bool _isJumpPressed = false;
     private bool _isAttackPressed = false;
     private Vector2 _movementInput = Vector2.zero;
-    public float comboDelay = .8f;
-
-    public UnityEvent testAction;
 
     private PlayerBaseState _currentState;
     private Dictionary<string, PlayerBaseState> _states;
 
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; }}
+    public BoxCollider[] GetAttackColliders { get { return _attacksHitColliders; }}
 
     public bool IsJumpPressed { get { return _isJumpPressed; }}
     public bool IsAttackPressed { get { return _isAttackPressed; } set { _isAttackPressed = value; } }
@@ -46,6 +44,11 @@ public class PlayerController : BaseController, IDamageSource, IDamageable
         _input = new PlayerInputActions();
     }
 
+    private void Start()
+    {
+        HealthbarController.Instance.SetHealthbar(CurrentHealth, MaxHealth);
+    }
+
     private void OnEnable()
     {
         _input.Player.Enable();
@@ -59,8 +62,6 @@ public class PlayerController : BaseController, IDamageSource, IDamageable
 
         _input.Player.Attack.started += ProcessAttack;
         _input.Player.Attack.canceled += ProcessAttack;
-
-        HealthbarController.Instance.SetHealthbar(CurrentHealth, MaxHealth);
     }
 
     protected override void FixedUpdate()
@@ -75,8 +76,6 @@ public class PlayerController : BaseController, IDamageSource, IDamageable
     private void Update()
     {
         //if (_input.Player.Attack.triggered) _isAttackPressed = true;
-
-        if (_input.Player.TestAction.triggered) testAction.Invoke();
     }
 
     private void ProcessJump(InputAction.CallbackContext context)
@@ -117,7 +116,6 @@ public class PlayerController : BaseController, IDamageSource, IDamageable
         _states["Jump"] = new PlayerJumpState(this);
         _states["Fall"] = new PlayerFallState(this);
         _states["Attack"] = new PlayerAttackState(this);
-        _states["AirAttack"] = new PlayerAirAttackState(this);
 
         _currentState = GetState("Grounded");
         _currentState.OnEnter();

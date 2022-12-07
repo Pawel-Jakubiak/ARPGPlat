@@ -5,40 +5,36 @@ public class AISensor : MonoBehaviour
 {
     public enum SensorType
     {
-        NONE = 0,
+        HIT = 0,
         SPHERE = 1,
         BOX = 2,
         CONE = 3
     }
 
     private Transform _target;
-    [SerializeField] private SensorType _sensorType = SensorType.NONE;
+    [SerializeField] private SensorType _sensorType = SensorType.HIT;
     [SerializeField] private float _searchRadius;
-    [SerializeField] private float _followRadius;
-    [SerializeField] private float _searchRate;
-    [SerializeField] private float _followRate;
+    [SerializeField] private float _targetRadius;
+    [SerializeField] private float _updateRate;
     [SerializeField] private int _angle;
     [SerializeField] private LayerMask _layer;
 
     private float _currentRadius;
-    private float _currentSearchRate;
     private float _lastDetectionTime;
 
     public Transform GetTarget { get { return _target; } }
-    public Transform SetTarget(Transform target) => _target = target;
 
     private void OnEnable()
     {
         _currentRadius = _searchRadius;
-        _currentSearchRate = _searchRate;
     }
 
     private void FixedUpdate()
     {
-        if (Time.time < _lastDetectionTime + _currentSearchRate)
+        if (Time.time < _lastDetectionTime + _updateRate)
             return;
 
-        if (_sensorType != SensorType.NONE)
+        if (_sensorType != SensorType.HIT)
             Detect();
     }
 
@@ -73,8 +69,7 @@ public class AISensor : MonoBehaviour
         bool targetFound = colliders.Length > 0 ? true : false;
 
         _target = targetFound ? colliders[0].transform : null;
-        _currentRadius = targetFound ? _followRadius : _searchRadius;
-        _currentSearchRate = targetFound ? _followRate : _searchRate;
+        _currentRadius = targetFound ? _targetRadius : _searchRadius;
     }
 
     [SerializeField] private bool _showGizmos = false;
@@ -111,4 +106,20 @@ public class AISensor : MonoBehaviour
             Handles.DrawWireArc(transform.position, Vector3.up, leftAngle, _angle, _searchRadius);
         }
     }
+
+    public void SetTarget(Transform target) => _target = target;
+
+    public void SetSensor(SensorType sensorType) => _sensorType = sensorType;
+
+    public void SetRadius(float radius) => _searchRadius = _targetRadius = radius;
+
+    public void SetRadius(float searchRadius, float targetRadius)
+    {
+        _searchRadius = searchRadius;
+        _targetRadius = targetRadius;
+    }
+
+    public void SetUpdateRate(float rate) => _updateRate = rate;
+
+    public void SetAngle(int angle) => _angle = angle;
 }

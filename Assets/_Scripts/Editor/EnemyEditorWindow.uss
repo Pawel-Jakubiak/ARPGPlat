@@ -1,0 +1,37 @@
+#container > VisualElement {
+	margin: 5px;
+}
+
+#groupLabel {
+	margin-bottom: 6px;
+	align-self: center;
+	color: #A9A9A9;
+	font-size: 14px;
+}
+
+#smallLabel {
+	margin: 5px 0px 5px 15px;
+	font-size: 12px;
+	-unity-font-style: bold;
+}
+
+#movementSpeed {
+	width: 70%;
+}
+
+#stationary {
+	flex-grow: 1;
+}
+
+#stationary > Label {
+	min-width: 50px;
+}
+
+#stationary > VisualElement {
+	justify-content: flex-end;
+}
+
+#sliderValue {
+	padding-left: 5px;
+	min-width: 40px;
+}

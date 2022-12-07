@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerGroundedState : PlayerBaseState
 {
+    private bool _isInRunAnimation;
+
     public PlayerGroundedState(PlayerController player) : base(player) 
     {
     }
@@ -33,11 +35,13 @@ public class PlayerGroundedState : PlayerBaseState
     {
         if (_player.IsMoving)
         {
-            _player.Animator.Play("RunForward");
+            _player.Animator.CrossFade("RunForward", .1f);
+            _isInRunAnimation = true;
         }
         else
         {
-            _player.Animator.Play("Idle");
+            _player.Animator.CrossFade("Idle", .1f);
+            _isInRunAnimation = false;
         }
 
         _player._appliedVelocity.y = _player._currentVelocity.y = _player.groundedGravity;
@@ -51,13 +55,15 @@ public class PlayerGroundedState : PlayerBaseState
     {
         HandleMovement();
 
-        if (_player.IsMoving)
+        if (_player.IsMoving && !_isInRunAnimation)
         {
-            _player.Animator.Play("RunForward");
+            _player.Animator.CrossFade("RunForward", .1f);
+            _isInRunAnimation = true;
         }
-        else
+        else if (!_player.IsMoving && _isInRunAnimation)
         {
-            _player.Animator.Play("Idle");
+            _player.Animator.CrossFade("Idle", .1f);
+            _isInRunAnimation = false;
         }
 
         CheckSwitchStates();

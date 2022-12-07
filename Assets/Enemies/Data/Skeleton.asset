@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 506ec46a9cafc55429bdc5a48c33e7bf, type: 3}
+  m_Name: Skeleton
+  m_EditorClassIdentifier: 
+  mesh: {fileID: 4300032, guid: e6f8c6b4cd0c5d24fbefebd224edfdb5, type: 3}
+  displayName: Skeleton
+  maxHealth: 100
+  movementSpeed: 2
+  isStationary: 1
+  damage: 2
+  repathRate: 2
+  patrolRate: 0.2
+  patrolRadius: 5
+  sensorType: 1
+  searchRadius: 0
+  targetRadius: 0
+  updateRate: 1.095
+  angle: 22
